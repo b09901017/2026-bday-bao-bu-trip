@@ -264,7 +264,7 @@ body[data-stage="1"] main{padding-top:2px;padding-bottom:12px}
 .sheen.go{animation:sheen 1.4s .1s var(--ease-out)}
 .tear-arena{position:absolute;inset:0;z-index:8;pointer-events:none}
 .shard{position:absolute;inset:0;pointer-events:none;will-change:transform;transform-origin:50% 50%;transition:transform .55s var(--ease-spring), opacity .5s;filter:drop-shadow(0 0 .6px rgba(255,255,255,.95)) drop-shadow(0 6px 10px rgba(60,40,50,.22))}
-.shard-inner{position:absolute;inset:0;pointer-events:auto;cursor:pointer}
+.shard-inner{position:absolute;inset:0;pointer-events:auto;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none}
 .shard-inner .ticket{position:absolute;inset:0;box-shadow:none}
 .shard.fall{transition:transform 1s cubic-bezier(.55,.06,.68,.19), opacity 1s ease}
 .scratch-hand{position:absolute;left:50%;top:55%;z-index:6;font-size:32px;pointer-events:none;animation:handMove 2.2s ease-in-out infinite}
@@ -1548,8 +1548,10 @@ initStage[2] = function (S) {
     s.el = wrap;
     let down = null;
     inner.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; inner.setPointerCapture(e.pointerId); });
-    inner.addEventListener('pointermove', (e) => { if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 28) { down = null; tearShard(s, e); } });
+    inner.addEventListener('pointermove', (e) => { if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 20) { down = null; tearShard(s, e); } });
     inner.addEventListener('pointerup', (e) => { if (down) { down = null; tearShard(s, e); } });
+    // if the browser still hijacks the gesture, count it as a tear instead of swallowing it
+    inner.addEventListener('pointercancel', (e) => { if (down) { down = null; tearShard(s, e); } });
     arena.appendChild(wrap);
   }
   function startTear() {
