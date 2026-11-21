@@ -176,6 +176,24 @@ main{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:10px 16px
 #boom-txt.show{animation:boomTxt 1.4s var(--ease-out)}
 .shake{animation:shake .4s ease}
 .pump-actions{margin-top:14px;display:grid;gap:10px}
+/* stage 1 is sized to fit one phone screen without scrolling */
+body[data-stage="1"] main{padding-top:2px;padding-bottom:12px}
+#stage-1 .stage-head{margin:2px 0 10px}
+#stage-1 .stage-title{font-size:clamp(19px,5.4vw,24px);margin:8px 0 4px}
+#stage-1 .stage-sub{font-size:13px;line-height:1.55}
+#stage-1 .pump-card{padding:12px 14px 14px}
+#stage-1 .status{margin-bottom:2px}
+#stage-1 .gauge{max-height:20vh;max-height:20dvh}
+#stage-1 .pump-meta{margin:2px 2px 6px}
+#stage-1 .rig svg{max-height:22vh;max-height:22dvh}
+#stage-1 .pump-actions{margin-top:10px;gap:8px}
+#stage-1 .pump-actions .btn{padding:13px 18px}
+.replay-link{justify-self:center;padding:6px 14px;font-size:12px}
+@media (max-height:620px){
+  #stage-1 .eyebrow{display:none}
+  #stage-1 .stage-title{margin-top:0}
+  #stage-1 .stage-sub{font-size:12px}
+}
 .kbd{font-size:11px;opacity:.75;padding:2px 6px;border:1px solid rgba(255,255,255,.6);border-radius:6px}
 
 /* =========================================================
@@ -377,6 +395,11 @@ body.is-night .step-line{background:rgba(255,255,255,.2)}
 #halo{opacity:0;transition:opacity .8s;transform-box:fill-box;transform-origin:center;animation:spin 6s linear infinite}
 .altar-hint{position:absolute;left:0;right:0;bottom:12px;z-index:3;text-align:center;font-size:12px;color:rgba(255,236,210,.85);pointer-events:none;transition:opacity .4s}
 .altar-hint.breathe{animation:breath 2s ease-in-out infinite}
+.collect-btn{position:absolute;left:50%;bottom:16px;z-index:5;transform:translateX(-50%);white-space:nowrap;padding:11px 20px;border-radius:999px;font-size:14px;color:#2A1B3D;
+  background:linear-gradient(135deg,#FDE68A,#F9A8D4 60%,#C4B5FD);animation:collectIn .7s var(--ease-spring) both, collectPulse 1.8s .7s ease-in-out infinite}
+.collect-btn:active{transform:translateX(-50%) scale(.95)}
+.collect-btn.go{animation:collectGo .6s var(--ease-out) forwards}
+#report-slot,#letter-slot{scroll-margin-top:80px}
 .flash{position:fixed;inset:0;z-index:70;pointer-events:none;background:radial-gradient(circle at 50% 45%,#FFF8E1,rgba(255,236,190,.85) 40%,rgba(255,220,180,0) 75%);opacity:0}
 .flash.go{animation:flash 1.6s ease-out}
 
@@ -462,6 +485,9 @@ body.is-night .back-link{background:rgba(255,255,255,.1);color:rgba(255,236,225,
 @keyframes flash{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
 @keyframes mSwap{from{opacity:0;filter:blur(6px);transform:translateY(6px)}to{opacity:1;filter:none;transform:none}}
 @keyframes overflow{to{background-position:-200% 0}}
+@keyframes collectIn{from{opacity:0;transform:translateX(-50%) translateY(12px) scale(.8)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes collectPulse{0%,100%{box-shadow:0 0 0 0 rgba(253,230,138,.55),0 8px 22px -8px rgba(249,168,212,.8)}50%{box-shadow:0 0 0 10px rgba(253,230,138,0),0 8px 22px -8px rgba(249,168,212,.8)}}
+@keyframes collectGo{to{opacity:0;transform:translateX(-50%) scale(1.6);filter:blur(4px)}}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
@@ -632,7 +658,7 @@ body.is-night .back-link{background:rgba(255,255,255,.1);color:rgba(255,236,225,
       <div class="pump-actions">
         <button class="btn" id="pump-btn">💨 打氣！<span class="kbd" id="kbd-hint">空白鍵</span></button>
         <button class="btn gold reveal-pop" id="to-2" hidden>輪胎打好了！載寶寶出發 →</button>
-        <button class="btn ghost small" id="replay-1" hidden>🔁 再挑戰一次打氣</button>
+        <button class="link-btn replay-link" id="replay-1" hidden>🔁 再挑戰一次打氣</button>
       </div>
     </div>
   </section>
@@ -804,6 +830,7 @@ body.is-night .back-link{background:rgba(255,255,255,.1);color:rgba(255,236,225,
         </svg>
       </div>
       <div class="altar-hint breathe" id="altar-hint">👆 按住持咒・放開就暫停</div>
+      <button class="collect-btn" id="collect-btn" hidden>🔮 點擊收取妳的能量報告</button>
     </div>
 
     <div id="report-slot" hidden></div>
@@ -1112,7 +1139,7 @@ function replayStage(n, flag) {
   renderSteps(); Sound.tick(true);
 }
 function replayAll() {
-  store.clear(['packing']); maxStage = 1;
+  store.clear(); maxStage = 1; document.body.dataset.stage = 0;
   [1, 2, 3, 4].forEach(n => { if (stageInit[n]) resetStage(n); });
   const prev = stageEls[current]; if (prev) prev.classList.remove('is-active', 'is-in', 'is-out');
   current = 0; document.body.classList.remove('is-night', 'is-started');
@@ -1146,6 +1173,7 @@ async function goTo(n) {
   current = n;
   window.scrollTo(0, 0);
   document.body.classList.toggle('is-night', n === 4);
+  document.body.dataset.stage = n;
   Scene.setStage(n);
   const el = stageEls[n];
   el.classList.add('is-active');
@@ -1180,7 +1208,7 @@ const Intro = (function intro() {
   env.addEventListener('click', () => open(1));
   env.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(1); } });
   $('#btn-resume').addEventListener('click', () => open(Math.min(maxStage, 4)));
-  $('#btn-restart').addEventListener('click', () => { store.clear(['packing']); maxStage = 1; open(1); });
+  $('#btn-restart').addEventListener('click', () => { store.clear(); maxStage = 1; open(1); });
   return {
     reset() { opened = false; env.classList.remove('is-open'); $('#intro-resume').hidden = true; $('#intro').classList.remove('is-gone'); }
   };
@@ -1279,9 +1307,7 @@ initStage[1] = function (S) {
     fire({ particleCount: 140, spread: 85, origin: { x: gx / innerWidth, y: gy / innerHeight }, startVelocity: 40 });
     $('#pump-btn').hidden = true; $('#to-2').hidden = false; $('#replay-1').hidden = false;
     store.set('done1', true);
-    const auto = !store.get('stage2Done');
     unlock(2);
-    if (auto) S.timeout(() => { if (current === 1) goTo(2); }, 3200);
   }
   function showDone() {
     setStatus('win'); hold = HOLD; pressure = zc; angle = angOf(zc) + 90;
@@ -1836,8 +1862,21 @@ initStage[4] = function (S) {
     setHint('🎆 點一下夜空放煙火', false); setLabel('🔮 生日能量報告已生成'); setProgress(1);
     orbs.forEach(o => o.classList.add('on')); lotus.style.opacity = 1; halo.style.opacity = 1;
     for (let i = 0; i < 8; i++) ta[i] = 1;
-    if (!animated) { la.fill(1); bloomK = .6; overlay('', 'Happy Birthday', '11/22 生日快樂 🎂', 'bl4', true); }
-    renderReport(animated);
+    if (!animated) { la.fill(1); bloomK = .6; overlay('', 'Happy Birthday', '11/22 生日快樂 🎂', 'bl4', true); renderReport(false); return; }
+    // wait for her to tap before the report appears
+    hint.style.opacity = 0;
+    const cb = $('#collect-btn'); cb.hidden = false;
+    cb.addEventListener('click', () => {
+      cb.disabled = true; cb.classList.add('go');
+      const r = cb.getBoundingClientRect();
+      FX.sparkle(r.left + r.width / 2, r.top + r.height / 2, 24, ['#FDE68A', '#F9A8D4', '#C4B5FD', '#fff']);
+      Sound.bowl(528, .08); Sound.pop(); vibrate([20, 40, 60]);
+      S.timeout(() => {
+        cb.hidden = true; hint.style.opacity = 1;
+        renderReport(true);
+        S.timeout(() => reportSlot.scrollIntoView({ behavior: 'smooth', block: 'start' }), 350);
+      }, 600);
+    }, { once: true });
   }
 
   /* ---------- energy report ---------- */
@@ -1863,7 +1902,6 @@ initStage[4] = function (S) {
     const showItem = it => { it.classList.add('in'); const i = $('.bar i', it); if (i) requestAnimationFrame(() => i.style.width = i.dataset.w + '%'); };
     if (!animated) { items.forEach(showItem); sum.classList.add('in'); stamp.classList.add('in'); cta.classList.add('in'); return; }
     await S.sleep(300);
-    reportSlot.scrollIntoView({ behavior: 'smooth', block: 'start' });
     const scanBar = $('.rp-scan .meter-bar i', reportSlot), scanTxt = $('.rp-scan-txt', reportSlot);
     const lines = ['正在連線喜馬拉雅能量中心…', '讀取七大脈輪頻率…', '分析呼吸法・瑜珈・冥想紀錄…', '生成報告中…'];
     for (let i = 0; i <= 40; i++) { scanBar.style.width = (i / 40 * 100) + '%'; scanTxt.textContent = lines[Math.min(3, Math.floor(i / 10))]; await S.sleep(55); }
