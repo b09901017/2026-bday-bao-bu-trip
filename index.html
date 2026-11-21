@@ -177,10 +177,10 @@ main{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:10px 16px
 .shake{animation:shake .4s ease}
 .pump-actions{margin-top:14px;display:grid;gap:10px}
 /* stage 1 is sized to fit one phone screen without scrolling */
-body[data-stage="1"] main{padding-top:2px;padding-bottom:12px}
-#stage-1 .stage-head{margin:2px 0 10px}
-#stage-1 .stage-title{font-size:clamp(19px,5.4vw,24px);margin:8px 0 4px}
-#stage-1 .stage-sub{font-size:13px;line-height:1.55}
+body[data-stage="1"] main,body[data-stage="2"] main{padding-top:2px;padding-bottom:12px}
+#stage-1 .stage-head,#stage-2 .stage-head{margin:2px 0 10px}
+#stage-1 .stage-title,#stage-2 .stage-title{font-size:clamp(19px,5.4vw,24px);margin:8px 0 4px}
+#stage-1 .stage-sub,#stage-2 .stage-sub{font-size:13px;line-height:1.55}
 #stage-1 .pump-card{padding:12px 14px 14px}
 #stage-1 .status{margin-bottom:2px}
 #stage-1 .gauge{max-height:20vh;max-height:20dvh}
@@ -190,9 +190,9 @@ body[data-stage="1"] main{padding-top:2px;padding-bottom:12px}
 #stage-1 .pump-actions .btn{padding:13px 18px}
 .replay-link{justify-self:center;padding:6px 14px;font-size:12px}
 @media (max-height:620px){
-  #stage-1 .eyebrow{display:none}
-  #stage-1 .stage-title{margin-top:0}
-  #stage-1 .stage-sub{font-size:12px}
+  #stage-1 .eyebrow,#stage-2 .eyebrow{display:none}
+  #stage-1 .stage-title,#stage-2 .stage-title{margin-top:0}
+  #stage-1 .stage-sub,#stage-2 .stage-sub{font-size:12px}
 }
 .kbd{font-size:11px;opacity:.75;padding:2px 6px;border:1px solid rgba(255,255,255,.6);border-radius:6px}
 
@@ -219,7 +219,13 @@ body[data-stage="1"] main{padding-top:2px;padding-bottom:12px}
 .scratch.fade{opacity:0;filter:blur(6px);pointer-events:none}
 .scratch.off{cursor:not-allowed}
 
-.ticket-frame{position:relative;height:400px;border-radius:var(--r-xl)}
+.ticket-stage{position:relative}
+.ticket-frame{position:relative;height:400px;border-radius:var(--r-xl);transform-origin:50% 0;transition:transform .35s var(--ease-out)}
+#stage-2 .meter{margin-top:10px}
+#stage-2 .tear-dots{margin-top:10px}
+#stage-2 .under-note{margin-top:8px}
+#stage-2 .under-note:empty{display:none}
+#stage-2 .choice{margin-top:10px;gap:8px}
 .ticket{position:absolute;inset:0;border-radius:var(--r-xl);overflow:hidden}
 .ticket-fake{background:linear-gradient(160deg,#F6F5F2 0%,#E7E6E1 100%);color:#5E5A57;padding:22px 20px;display:flex;flex-direction:column;border:1px solid #DAD8D3;box-shadow:var(--shadow-md)}
 .tf-top{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.12em;color:#8E8984}
@@ -247,8 +253,8 @@ body[data-stage="1"] main{padding-top:2px;padding-bottom:12px}
 .route .city{font-size:12px;color:var(--ink-soft);line-height:1.2}
 .route .city b{display:block;font-weight:400;font-size:19px;color:var(--ink);letter-spacing:.06em}
 .route .city:last-child{text-align:right}
-.route .line{flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 11px);position:relative}
-.route .line span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:15px;line-height:1;background:#fff;padding:5px 7px;border-radius:999px;box-shadow:0 2px 6px rgba(185,135,34,.25)}
+.route .route-line{flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 11px);position:relative}
+.route .route-line span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:15px;line-height:1;background:#fff;padding:5px 7px;border-radius:999px;box-shadow:0 2px 6px rgba(185,135,34,.25)}
 .perf{position:relative;height:16px;margin:2px -18px 8px}
 .perf::before{content:"";position:absolute;left:20px;right:20px;top:50%;border-top:2px dashed rgba(230,181,74,.55)}
 .perf i{position:absolute;top:0;width:16px;height:16px;border-radius:50%;background:#FBEFF2;box-shadow:inset 0 0 0 1.5px rgba(230,181,74,.6)}
@@ -671,7 +677,7 @@ body.is-night .back-link{background:rgba(255,255,255,.1);color:rgba(255,236,225,
       <p class="stage-sub" id="s2-sub">挑一張刮刮樂，用手指把銀色塗層刮開</p>
     </div>
 
-    <div>
+    <div id="s2-body">
       <div class="mini-row" id="mini-row">
         <div class="mini"><div class="mini-face"></div><canvas class="scratch"></canvas></div>
         <div class="mini"><div class="mini-face"></div><canvas class="scratch"></canvas></div>
@@ -679,6 +685,7 @@ body.is-night .back-link{background:rgba(255,255,255,.1);color:rgba(255,236,225,
         <div class="scratch-hand" id="mini-hand">👆</div>
       </div>
 
+      <div class="ticket-stage" id="ticket-stage">
       <div class="ticket-frame" id="ticket-frame" hidden>
         <div class="ticket ticket-real" id="ticket-real" hidden>
           <div class="tr-top">
@@ -690,7 +697,7 @@ body.is-night .back-link{background:rgba(255,255,255,.1);color:rgba(255,236,225,
           </div>
           <div class="route">
             <div class="city">TAIPEI<b>台北</b></div>
-            <div class="line"><span>🚆</span></div>
+            <div class="route-line"><span>🚆</span></div>
             <div class="city">SANYI<b>三義</b></div>
           </div>
           <div class="perf"><i></i><i></i></div>
@@ -715,6 +722,7 @@ body.is-night .back-link{background:rgba(255,255,255,.1);color:rgba(255,236,225,
         <div class="tear-arena" id="tear-arena" hidden></div>
         <div class="scratch-hand" id="big-hand" hidden>👆</div>
       </div>
+      </div>
 
       <div class="meter" id="scratch-meter"><span>刮開</span><div class="meter-bar"><i id="scratch-bar"></i></div><span class="meter-val" id="scratch-val">0%</span></div>
       <div class="tear-dots" id="tear-dots" hidden></div>
@@ -729,7 +737,7 @@ body.is-night .back-link{background:rgba(255,255,255,.1);color:rgba(255,236,225,
       </div>
       <div class="choice" id="to-3-wrap" hidden>
         <button class="btn gold reveal-pop" id="to-3">打開完整兩天一夜行程 →</button>
-        <button class="btn ghost small" id="replay-2">🔁 重新抽一次刮刮樂</button>
+        <button class="link-btn replay-link" id="replay-2">🔁 重新抽一次刮刮樂</button>
       </div>
     </div>
   </section>
@@ -1162,6 +1170,8 @@ $('#steps').addEventListener('click', (e) => {
   const b = e.target.closest('.step'); if (!b) return;
   const n = +b.dataset.step; if (n <= maxStage && n !== current) goTo(n);
 });
+// next-stage buttons: also fire on touch release so a swallowed click never strands her
+function onNext(el, n) { const go = () => goTo(n); el.addEventListener('click', go); el.addEventListener('pointerup', e => { if (e.pointerType === 'touch') go(); }); }
 function unlock(n) { if (n > maxStage) { maxStage = n; store.set('maxStage', n); renderSteps(); } }
 
 let navBusy = false;
@@ -1316,7 +1326,7 @@ initStage[1] = function (S) {
     $('#pump-btn').hidden = true; $('#to-2').hidden = false; $('#replay-1').hidden = false;
   }
   if (done) showDone();
-  $('#to-2').addEventListener('click', () => goTo(2));
+  onNext($('#to-2'), 2);
   $('#replay-1').addEventListener('click', () => replayStage(1, 'done1'));
   if (DEBUG) window.__bb1 = { get p() { return pressure; }, get c() { return zc; }, get w() { return zw; }, get hold() { return hold; }, get done() { return done; }, win };
 
@@ -1445,8 +1455,25 @@ initStage[2] = function (S) {
   const frame = $('#ticket-frame'), fake = $('#ticket-fake'), real = $('#ticket-real'), arena = $('#tear-arena'),
     meter = $('#scratch-meter'), bar = $('#scratch-bar'), val = $('#scratch-val'), note = $('#s2-note'),
     eyebrow = $('#s2-eyebrow'), title = $('#s2-title'), sub = $('#s2-sub'), dots = $('#tear-dots'),
-    row = $('#mini-row'), minis = $$('.mini', row), miniHand = $('#mini-hand'), bigHand = $('#big-hand');
-  const TEARS = 12;
+    row = $('#mini-row'), minis = $$('.mini', row), miniHand = $('#mini-hand'), bigHand = $('#big-hand'),
+    tStage = $('#ticket-stage'), body2 = $('#s2-body'), mainEl = $('main');
+  const TEARS = 12, FRAME_H = 400;
+
+  /* scale the ticket so the whole stage (and the buttons under it) fits one screen */
+  function fitTicket() {
+    if (current !== 2) return;
+    if (frame.hidden) { tStage.style.height = '0px'; return; }
+    const top = mainEl.offsetTop + tStage.offsetTop;
+    const below = (body2.offsetTop + body2.offsetHeight) - (tStage.offsetTop + tStage.offsetHeight);
+    const k = clamp((innerHeight - top - below - 14) / FRAME_H, .6, 1);
+    tStage.style.height = (FRAME_H * k).toFixed(1) + 'px';
+    frame.style.transform = k < 1 ? `scale(${k.toFixed(4)})` : '';
+  }
+  const ro = window.ResizeObserver ? new ResizeObserver(() => fitTicket()) : null;
+  if (ro) [row, frame, meter, dots, note, $('#fake-choice'), $('#to-3-wrap')].forEach(el => ro.observe(el));
+  S.on(window, 'resize', fitTicket);
+  S.onDispose(() => { if (ro) ro.disconnect(); });
+  stageEnter[2] = () => requestAnimationFrame(fitTicket);
   const setHead = (e, t, s) => { eyebrow.textContent = e; title.textContent = t; sub.innerHTML = s; restart(title, 'reveal-pop'); };
   const setMeter = pct => { bar.style.width = pct + '%'; val.textContent = pct + '%'; };
   const LOSE = '<div class="mf lose"><b>📺</b><strong>銘謝惠顧</strong><small>槓龜！只好<br>在家追劇了</small></div>';
@@ -1483,7 +1510,7 @@ initStage[2] = function (S) {
     setHead('第二站 · 中獎啦', '恭喜！抽中台中一日遊 🎉', '11/22 要去<b>台中</b>玩一整天囉～');
     await S.sleep(2200);
     row.classList.add('out'); await S.sleep(450); row.hidden = true;
-    frame.hidden = false; restart(frame, 'reveal-pop'); meter.hidden = true;
+    frame.hidden = false; fitTicket(); restart(tStage, 'reveal-pop'); meter.hidden = true;
     Sound.pop();
     await S.sleep(2000);
     setHead('第二站 · 中獎啦', '……等等，真的只是台中嗎？🤔', '這張票…總覺得哪裡怪怪的');
@@ -1493,7 +1520,7 @@ initStage[2] = function (S) {
   /* ---------- choice ---------- */
   $('#btn-ok-taichung').addEventListener('click', async () => {
     const a = $('#alert'); a.hidden = false; restart(a, 'reveal-pop');
-    restart(frame, 'shake'); Sound.hiss(); vibrate([40, 30, 40]);
+    restart(tStage, 'shake'); Sound.hiss(); vibrate([40, 30, 40]);
     $('#btn-ok-taichung').disabled = $('#btn-tear').disabled = true;
     await S.sleep(1500); startTear();
   });
@@ -1618,10 +1645,10 @@ initStage[2] = function (S) {
     meter.hidden = true; dots.hidden = true; $('#fake-choice').hidden = true; $('#to-3-wrap').hidden = false;
     setHead('第二站 · 神反轉 ✨', '真正的生日禮物在這裡！', '兩天一夜，<b>苗栗三義</b>，只屬於我們兩個人');
   }
-  $('#to-3').addEventListener('click', () => goTo(3));
+  onNext($('#to-3'), 3);
   $('#replay-2').addEventListener('click', () => replayStage(2, 'stage2Done'));
 
-  if (store.get('stage2Done')) { requestAnimationFrame(showFinal); return; }
+  if (store.get('stage2Done')) { requestAnimationFrame(() => { showFinal(); fitTicket(); }); return; }
   const ready = (document.fonts && document.fonts.load) ? Promise.all([document.fonts.load('24px Huninn', '刮看'), sleep(30)]).catch(() => {}) : sleep(30);
   ready.then(() => requestAnimationFrame(() => {
     minis.forEach((m, i) => { cards[i].paint('silver', '刮刮看', `No.${i + 1}`, true); cards[i].enable(); });
@@ -1729,7 +1756,7 @@ initStage[3] = function (S) {
     }, 380);
   }
   $('#rally-btn').addEventListener('click', rally);
-  $('#to-4').addEventListener('click', () => goTo(4));
+  onNext($('#to-4'), 4);
 };
 
 /* =========================================================
